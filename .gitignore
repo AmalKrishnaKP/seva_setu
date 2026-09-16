@@ -1,0 +1,75 @@
+# =========================
+# Environment / Secrets
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+myenv/
+
+# Python build / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# FastAPI / Uvicorn
+# =========================
+*.log
+
+# =========================
+# Alembic
+# =========================
+# DO NOT ignore alembic/
+# DO NOT ignore alembic/versions/
+
+# =========================
+# Node / React / Vite
+# =========================
+node_modules/
+frontend/node_modules/
+
+# Vite build output
+frontend/dist/
+
+# Environment files
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# =========================
+# IDE / Editors
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Temporary files
+# =========================
+*.tmp
+*.temp
+*.swp
+*.swo
