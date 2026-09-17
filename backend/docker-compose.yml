@@ -1,21 +1,14 @@
 services:
-
   postgres:
-
-    image: postgres:17
-
+    image: postgis/postgis:17-3.5
     container_name: seva_setu_d
-
     restart: always
-
     environment:
       POSTGRES_USER: seva
       POSTGRES_PASSWORD: seva_2026
       POSTGRES_DB: seva_db
-
     ports:
       - "5437:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
