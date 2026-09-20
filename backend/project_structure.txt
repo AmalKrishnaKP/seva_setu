@@ -13,7 +13,13 @@ src
 src/api
 src/app
 src/core
+src/core/hash.py
+src/core/responce.py
 src/core/session.py
+src/core/token.py
+src/domain
+src/domain/user
+src/domain/user/model.py
 src/domains
 src/server.py
 structure.py
