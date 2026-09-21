@@ -11,9 +11,9 @@ load_dotenv()
 db_url=os.getenv("DB_URL")
 print(db_url)
 
-engin=create_engine(db_url)
+engine=create_engine(db_url)
 
-session= sessionmaker(autoflush=False,autocommit=False,bind=engin)
+session= sessionmaker(autoflush=False,autocommit=False,bind=engine)
 
 def get_db():
     db=session()
