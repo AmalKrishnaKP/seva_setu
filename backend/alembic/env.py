@@ -2,7 +2,12 @@ from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from src.core.session import base
+import sys
+import os
+sys.path.insert(0, os.path.abspath('src'))
+
+from core.session import base
+from domain.user.model import User
 
 
 from alembic import context
@@ -26,7 +31,22 @@ target_metadata = base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+# ... etc.
 
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == "table" and name in {
+        'spatial_ref_sys', 'topology', 'layer', 'direction_lookup',
+        'secondary_unit_lookup', 'edges', 'pagc_gaz', 'addr', 'zcta5',
+        'bg', 'pagc_rules', 'loader_lookuptables', 'state', 'pagc_lex',
+        'county_lookup', 'place', 'cousub', 'zip_lookup', 'zip_state_loc',
+        'geocode_settings', 'county', 'geocode_settings_default',
+        'zip_lookup_base', 'tract', 'faces', 'zip_state', 'street_type_lookup',
+        'tabblock20', 'countysub_lookup', 'place_lookup', 'loader_platform',
+        'zip_lookup_all', 'state_lookup', 'loader_variables', 'tabblock',
+        'featnames', 'addrfeat'
+    }:
+        return False
+    return True
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -46,6 +66,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -67,7 +88,8 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection, target_metadata=target_metadata,
+            include_object=include_object
         )
 
         with context.begin_transaction():
