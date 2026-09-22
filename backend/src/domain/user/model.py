@@ -1,5 +1,9 @@
 from datetime import datetime, timezone
 import uuid
+from datetime import datetime, timezone
+from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index,Integer
+from geoalchemy2 import Geography
+from core.session import base
 
 from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index
 from geoalchemy2 import Geography

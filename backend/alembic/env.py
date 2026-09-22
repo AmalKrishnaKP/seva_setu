@@ -1,6 +1,14 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool, text
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
+import sys
+import os
+sys.path.insert(0, os.path.abspath('src'))
+
+from core.session import base
+from domain.user.model import User
+
 
 from alembic import context
 
@@ -24,6 +32,20 @@ if config.config_file_name is not None:
 # SQLAlchemy metadata
 target_metadata = Base.metadata
 
+def include_object(object, name, type_, reflected, compare_to):
+    if type_ == "table" and name in {
+        'spatial_ref_sys', 'topology', 'layer', 'direction_lookup',
+        'secondary_unit_lookup', 'edges', 'pagc_gaz', 'addr', 'zcta5',
+        'bg', 'pagc_rules', 'loader_lookuptables', 'state', 'pagc_lex',
+        'county_lookup', 'place', 'cousub', 'zip_lookup', 'zip_state_loc',
+        'geocode_settings', 'county', 'geocode_settings_default',
+        'zip_lookup_base', 'tract', 'faces', 'zip_state', 'street_type_lookup',
+        'tabblock20', 'countysub_lookup', 'place_lookup', 'loader_platform',
+        'zip_lookup_all', 'state_lookup', 'loader_variables', 'tabblock',
+        'featnames', 'addrfeat'
+    }:
+        return False
+    return True
 
 def include_name(name, type_, parent_names):
     """
