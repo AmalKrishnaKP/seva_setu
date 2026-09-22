@@ -9,6 +9,7 @@ from sqlalchemy import (
     Integer,
     ForeignKey,
 )
+from sqlalchemy.orm import relationship
 
 from src.core.session import Base
 
@@ -26,7 +27,7 @@ class Worker(Base):
     # User relationship
     user_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("users.id"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         unique=True
     )
@@ -37,7 +38,8 @@ class Worker(Base):
     )
 
     is_verified = Column(
-        Boolean
+        Boolean,
+        default=False
     )
 
     exp_yrs = Column(
@@ -56,9 +58,17 @@ class Worker(Base):
 
     # Rating summary
     average_rating = Column(
-        Float
+        Float,
+        default=0.0
     )
 
     total_rating = Column(
-        Integer
+        Integer,
+        default=0
+    )
+
+    # Relationship
+    user = relationship(
+        "User",
+        back_populates="worker"
     )

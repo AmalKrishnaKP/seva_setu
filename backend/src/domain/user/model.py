@@ -3,7 +3,7 @@ import uuid
 
 from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index
 from geoalchemy2 import Geography
-
+from sqlalchemy.orm import relationship
 from src.core.session import Base
 
 
@@ -77,16 +77,30 @@ class User(Base):
 
     # Timestamps
     created_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         nullable=False,
         default=lambda: datetime.now(timezone.utc)
     )
 
     updated_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         nullable=False,
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc)
+    )
+
+    # Relationships
+    sessions = relationship(
+        "UserSession",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    worker = relationship(
+        "Worker",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
     )
 
     __table_args__ = (

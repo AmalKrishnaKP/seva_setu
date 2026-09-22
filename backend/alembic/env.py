@@ -9,6 +9,7 @@ from src.core.session import Base
 # Import all models so Alembic can detect them
 from src.domain.user.model import User
 from src.domain.worker.model import Worker
+from src.domain.auth.model import UserSession
 
 
 # Alembic Config object
