@@ -3,10 +3,6 @@ import uuid
 from datetime import datetime, timezone
 from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index,Integer,ARRAY,ForeignKey
 from geoalchemy2 import Geography
-from core.session import base
-
-from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index
-from geoalchemy2 import Geography
 from sqlalchemy.orm import relationship
 from src.core.session import Base
 
@@ -56,10 +52,8 @@ class User(Base):
 
     role_id=Column(
         ARRAY(UUID),
-        ForeignKey("role.id", ondelete="CASCADE"),
+        # ForeignKey("role.id", ondelete="CASCADE"), # Commented out until Role table exists
         nullable=False,
-
-    
     )
     worker = relationship(
         "Worker",
@@ -68,12 +62,12 @@ class User(Base):
         cascade="all, delete-orphan",
     )
 
-    role = relationship(
-        "Role",
-        back_populates="role",
-        cascade="all, delete-orphan",
+    # role = relationship(
+    #     "Role",
+    #     back_populates="role"
+    #     cascade="all, delete-orphan",
 
-    )
+    # )
 
     __table_args__ = (
         Index(
