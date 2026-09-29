@@ -11,7 +11,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from src.core.session import Base
+from core.session import Base
 
 
 class Worker(Base):

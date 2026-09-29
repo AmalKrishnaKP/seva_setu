@@ -1,10 +1,15 @@
 from fastapi import FastAPI
-from core.session import base, engine
+from core.session import Base, engine
 from domain.user.model import User
-#from domain.user.router import router as user
+from domain.worker.model import Worker
+from domain.job.model import Job
+from core.twilo import setup,verifi,opt_send
+# from src.domain.user.router import router as user
 
 app = FastAPI()
+print(verifi(754595))
 
-#base.metadata.create_all(bind=engine)
 
-#app.include_router(user)
+# Base.metadata.create_all(bind=engine) # Removed because we use Alembic for migrations
+
+# app.include_router(user)

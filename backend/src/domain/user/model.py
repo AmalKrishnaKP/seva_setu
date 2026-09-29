@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index,Integer,ARRAY,ForeignKey
+from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index,Integer,ARRAY,ForeignKey,Enum
 from geoalchemy2 import Geography
 from sqlalchemy.orm import relationship
-from src.core.session import Base
-
+from core.session import Base
+from core.enum import LanguageEnum
 
 class User(Base):
     __tablename__ = "users"
@@ -29,7 +29,10 @@ class User(Base):
         unique=True
     )
 
-   
+    language=Column(
+        Enum(LanguageEnum),
+        nullable=False
+    )
 
     profile_img = Column(
         String(500)
