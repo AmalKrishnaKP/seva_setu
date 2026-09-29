@@ -14,10 +14,8 @@ from src.core.session import Base
 # Import ALL models so Alembic can detect their tables
 from src.domain.user.model import User
 from src.domain.worker.model import Worker
-# from src.domain.role.model import Role
-# Add other models here as your project grows
-# from src.domain.auth.model import UserSession
-
+from src.domain.badge.model import Badge, WorkerBadge
+from src.domain.favorite.model import Favorite
 
 # ---------------------------------------------------------
 # Alembic Config

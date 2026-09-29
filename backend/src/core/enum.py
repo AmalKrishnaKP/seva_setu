@@ -10,4 +10,10 @@ class JobStatusEnum(str, enum.Enum):
     CANCELLED = "CANCELLED"
  
 
- 
+ class AuditTagEnum(str, enum.Enum):
+    WORKER = "WORKER"
+    SECURITY = "SECURITY"
+    ADMIN = "ADMIN"
+    CATEGORY ="CATEGORY"
+    BADGE ="BADGE"
+    CUSTOMER = "CUSTOMER"

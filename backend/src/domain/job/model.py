@@ -48,7 +48,7 @@ class Job(Base):
         UUID(as_uuid=True),
         ForeignKey("worker.id",ondelete="CASCADE")
     )
-    status=role = Column(
+    status= Column(
         Enum(JobStatusEnum),
         nullable=False
     )
