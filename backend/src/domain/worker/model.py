@@ -32,28 +32,10 @@ class Worker(Base):
         unique=True
     )
 
-    # Worker details
-    verification_proof = Column(
-        String(500)
-    )
-
-    is_verified = Column(
-        Boolean,
-        default=False
-    )
-
-    exp_yrs = Column(
-        Float,
-        nullable=False
-    )
 
     expected_hourly_wage = Column(
         Float,
         nullable=False
-    )
-
-    service_radius = Column(
-        Integer
     )
 
     # Rating summary

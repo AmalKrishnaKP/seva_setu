@@ -1,11 +1,7 @@
 from datetime import datetime, timezone
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index,Integer
-from geoalchemy2 import Geography
-from core.session import base
-
-from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index
+from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index,Integer,ARRAY,ForeignKey
 from geoalchemy2 import Geography
 from sqlalchemy.orm import relationship
 from src.core.session import Base
@@ -33,15 +29,7 @@ class User(Base):
         unique=True
     )
 
-    email = Column(
-        String(255),
-        unique=True
-    )
-
-    password_hash = Column(
-        String(255),
-        nullable=False
-    )
+   
 
     profile_img = Column(
         String(500)
@@ -53,16 +41,6 @@ class User(Base):
         nullable=False
     )
 
-    latitude = Column(
-        Float,
-        nullable=False
-    )
-
-    longitude = Column(
-        Float,
-        nullable=False
-    )
-
     # PostGIS
     geo_location = Column(
         Geography(
@@ -70,42 +48,26 @@ class User(Base):
             srid=4326
         ),
         nullable=True
-    )
+    )    
 
-    # Account
-    status = Column(
-        Boolean,
+    role_id=Column(
+        ARRAY(UUID),
+        # ForeignKey("role.id", ondelete="CASCADE"), # Commented out until Role table exists
         nullable=False,
-        default=True
     )
-
-    # Timestamps
-    created_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        default=lambda: datetime.now(timezone.utc)
-    )
-
-    updated_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc)
-    )
-
-    # Relationships
-    sessions = relationship(
-        "UserSession",
-        back_populates="user",
-        cascade="all, delete-orphan",
-    )
-
     worker = relationship(
         "Worker",
         back_populates="user",
         uselist=False,
         cascade="all, delete-orphan",
     )
+
+    # role = relationship(
+    #     "Role",
+    #     back_populates="role"
+    #     cascade="all, delete-orphan",
+
+    # )
 
     __table_args__ = (
         Index(
