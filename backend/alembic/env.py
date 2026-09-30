@@ -11,11 +11,10 @@ sys.path.insert(0, os.path.abspath("src"))
 # SQLAlchemy Base
 from src.core.session import Base
 
-# Import ALL models so Alembic can detect their tables
-from src.domain.user.model import User
-from src.domain.worker.model import Worker
-from src.domain.badge.model import Badge, WorkerBadge
-from src.domain.favorite.model import Favorite
+# Import server which in turn imports all models
+# import src.server
+# from src.domain.auth.model import UserSession
+
 
 # ---------------------------------------------------------
 # Alembic Config

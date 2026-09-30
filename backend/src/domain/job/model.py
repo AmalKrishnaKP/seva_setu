@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import Column, UUID, String, Float, Boolean, DateTime, Index,Integer,ARRAY,ForeignKey,DateTime,Enum
 from geoalchemy2 import Geography
 from sqlalchemy.orm import relationship
-from src.core.session import Base
+from core.session import Base
 from datetime import datetime,timezone
 from core.enum import JobStatusEnum
 
@@ -15,11 +15,11 @@ class Job(Base):
         primary_key=True,
         default=uuid.uuid4
     )
-    category_id=Column(
-        UUID,
-        ForeignKey("category.id", ondelete="CASCADE"),
-        nullable=False
-    )
+    # category_id=Column(
+    #     UUID,
+    #     ForeignKey("categories.id", ondelete="CASCADE"),
+    #     nullable=False
+    # )
     geo_location = Column(
         Geography(
             geometry_type="POINT",
@@ -42,25 +42,20 @@ class Job(Base):
     )
     customer_id=Column(
         UUID(as_uuid=True),
-        ForeignKey("user.id",ondelete="CASCADE")
+        ForeignKey("users.id",ondelete="CASCADE")
     )
     worker_id=Column(
         UUID(as_uuid=True),
-        ForeignKey("worker.id",ondelete="CASCADE")
+        ForeignKey("workers.id",ondelete="CASCADE")
     )
     status= Column(
         Enum(JobStatusEnum),
         nullable=False
     )
     customer= relationship(
-            "Customer",
-            back_populates="user",
-            cascade="all, delete-orphan",
-    
+            "User"
         )
     worker= relationship(
-            "Worker",
-            back_populates="worker",
-            cascade="all, delete-orphan",
-    
+            "Worker"
         )
+         
