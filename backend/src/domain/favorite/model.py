@@ -33,7 +33,10 @@ class Favorite(Base):
         default=lambda:datetime.now(timezone.utc),
     )
     #Relationship
-    worker=relationship("Worker")
+    worker=relationship(
+        "Worker",
+        back_populates="favorites"
+                        )
     customer=relationship("User")
 
     __table_args__=(
