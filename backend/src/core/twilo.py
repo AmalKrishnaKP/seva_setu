@@ -1,5 +1,5 @@
-from twilio.rest import Client
 import os
+from twilio.rest import Client
 
 
 account_sid = os.environ["TWILIO_ACCOUNT_SID"]
@@ -16,16 +16,16 @@ def setup():
 
 # print(service.sid)
 
-def opt_send():
+def otp_send(phone):
     verification = client.verify.v2.services(
         "VA00e091649a83bfd056858a8d346cee4f"
-    ).verifications.create(to="+919539040358", channel="sms")
+    ).verifications.create(to=phone, channel="sms")
 
     return verification.status
-def verifi(code):
+def verifi(phone,otp):
     verification_check = client.verify.v2.services(
         "VA00e091649a83bfd056858a8d346cee4f"
-    ).verification_checks.create(to="+919539040358", code=code)
+    ).verification_checks.create(to=phone, code=otp)
 
     return  verification_check.status
 

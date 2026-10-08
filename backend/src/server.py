@@ -1,17 +1,17 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+
 from fastapi import FastAPI
-from fastapi import APIRouter
-from core.session import Base, engine
+from api.v1 import router as v1_router
 from domain.user.model import User
 from domain.worker.model import Worker
-
 from domain.job.model import Job
-from core.twilo import setup,verifi,opt_send
-# from src.domain.user.router import router as user
 
 app = FastAPI()
-print(verifi(754595))
+
+app.include_router(v1_router,prefix="/seva_setu")
 
 
-# Base.metadata.create_all(bind=engine) # Removed because we use Alembic for migrations
-
-# app.include_router(user)

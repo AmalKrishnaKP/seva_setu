@@ -41,7 +41,7 @@ class User(Base):
     # Location
     address = Column(
         String(500),
-        nullable=False
+        nullable=True
     )
 
     # PostGIS
@@ -50,7 +50,7 @@ class User(Base):
             geometry_type="POINT",
             srid=4326
         ),
-        nullable=True
+        nullable=False
     )    
 
     role_id=Column(

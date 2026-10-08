@@ -11,10 +11,10 @@ ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
 
 
-def create_access_token(employee_id:uuid.UUID,role:str):
+def create_access_token(employee_phone:int,role:str):
     try:
         payload = {
-            "id": str(employee_id),
+            "phone": str(employee_phone),
             "role":role,
             "exp": datetime.utcnow() + timedelta(minutes=30)
         }
