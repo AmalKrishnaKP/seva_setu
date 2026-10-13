@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from src.core.enum import LanguageEnum
+from core.enum import LanguageEnum
 
 class Create_User(BaseModel):
     name:str
@@ -8,3 +8,6 @@ class Create_User(BaseModel):
     latitude:float
     longitude:float
     
+class location(BaseModel):
+    lati:float
+    longi:float
