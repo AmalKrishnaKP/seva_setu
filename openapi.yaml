@@ -1,0 +1,701 @@
+openapi: 3.0.3
+info:
+  title: SevaSetu API
+  version: 1.0.0
+  description: |
+    REST API for SevaSetu customers, workers, job booking, ratings and notifications.
+    All protected endpoints require a Bearer JWT token.
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+tags:
+  - name: Authentication
+  - name: Profile
+  - name: Categories
+  - name: Workers
+  - name: Jobs
+  - name: Favourites
+  - name: Ratings
+  - name: Notifications
+paths:
+  /auth/otp/request:
+    post:
+      tags: [Authentication]
+      summary: Send an OTP to a phone number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone: { type: string, example: '+919876543210' }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+  /auth/otp/verify:
+    post:
+      tags: [Authentication]
+      summary: Verify OTP and sign in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, otp]
+              properties:
+                phone: { type: string, example: '+919876543210' }
+                otp: { type: string, example: '123456' }
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          accessToken: { type: string }
+                          refreshToken: { type: string }
+                          isNewUser: { type: boolean }
+                          user: { $ref: '#/components/schemas/User' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Get a new access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Log out current user
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /me:
+    get:
+      tags: [Profile]
+      summary: Get the current user's profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+    patch:
+      tags: [Profile]
+      summary: Update the current user's profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, example: Anjali Menon }
+                language: { type: string, example: ml }
+                geography: { type: string, example: Palakkad }
+                profilePic: { type: string, format: uri }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /me/addresses:
+    get:
+      tags: [Profile]
+      summary: List current user's saved addresses
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+    post:
+      tags: [Profile]
+      summary: Save an address
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddressInput' }
+      responses:
+        '201': { $ref: '#/components/responses/Success' }
+  /me/addresses/{addressId}:
+    parameters:
+      - $ref: '#/components/parameters/AddressId'
+    patch:
+      tags: [Profile]
+      summary: Update an owned address
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AddressInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+    delete:
+      tags: [Profile]
+      summary: Delete an owned address
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List service categories
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+    post:
+      tags: [Categories]
+      summary: Create a service category (admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, example: Electrician }
+                icon: { type: string, format: uri }
+      responses:
+        '201': { $ref: '#/components/responses/Success' }
+  /categories/{categoryId}:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    patch:
+      tags: [Categories]
+      summary: Update a category (admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                icon: { type: string, format: uri }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /badges:
+    get:
+      tags: [Workers]
+      summary: List worker badges
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+    post:
+      tags: [Workers]
+      summary: Create a badge (admin only)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, threshold]
+              properties:
+                name: { type: string, example: Top Rated }
+                description: { type: string }
+                threshold: { type: integer, minimum: 0, example: 50 }
+                terms: { type: string }
+                iconUrl: { type: string, format: uri }
+      responses:
+        '201': { $ref: '#/components/responses/Success' }
+  /workers:
+    get:
+      tags: [Workers]
+      summary: Search workers
+      parameters:
+        - $ref: '#/components/parameters/CategoryQuery'
+        - $ref: '#/components/parameters/GeographyQuery'
+        - name: availableOn
+          in: query
+          schema: { type: string, format: date }
+        - name: minRating
+          in: query
+          schema: { type: number, minimum: 0, maximum: 5 }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200': { $ref: '#/components/responses/PaginatedSuccess' }
+  /workers/me:
+    get:
+      tags: [Workers]
+      summary: Get own worker profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+    post:
+      tags: [Workers]
+      summary: Create own worker profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WorkerProfileInput' }
+      responses:
+        '201': { $ref: '#/components/responses/Success' }
+    patch:
+      tags: [Workers]
+      summary: Update own worker profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WorkerProfileInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /workers/me/categories:
+    put:
+      tags: [Workers]
+      summary: Replace own categories and rates
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [categories]
+              properties:
+                categories:
+                  type: array
+                  items: { $ref: '#/components/schemas/WorkerCategoryInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /workers/me/leaves:
+    get:
+      tags: [Workers]
+      summary: List own leaves
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+    post:
+      tags: [Workers]
+      summary: Add leave
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LeaveInput' }
+      responses:
+        '201': { $ref: '#/components/responses/Success' }
+  /workers/me/leaves/{leaveId}:
+    parameters:
+      - $ref: '#/components/parameters/LeaveId'
+    delete:
+      tags: [Workers]
+      summary: Remove a future leave
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /workers/{workerId}:
+    parameters:
+      - $ref: '#/components/parameters/WorkerId'
+    get:
+      tags: [Workers]
+      summary: Get public worker profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /workers/{workerId}/availability:
+    parameters:
+      - $ref: '#/components/parameters/WorkerId'
+      - name: date
+        in: query
+        required: true
+        schema: { type: string, format: date }
+      - name: startTime
+        in: query
+        schema: { type: string, example: '10:00' }
+      - name: endTime
+        in: query
+        schema: { type: string, example: '12:00' }
+    get:
+      tags: [Workers]
+      summary: Check a worker's availability
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /jobs:
+    get:
+      tags: [Jobs]
+      summary: List jobs belonging to current customer or worker
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/JobStatus' }
+        - name: date
+          in: query
+          schema: { type: string, format: date }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200': { $ref: '#/components/responses/PaginatedSuccess' }
+    post:
+      tags: [Jobs]
+      summary: Create a service request
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobInput' }
+      responses:
+        '201': { $ref: '#/components/responses/Success' }
+  /jobs/{jobId}:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+    get:
+      tags: [Jobs]
+      summary: Get job details
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+    patch:
+      tags: [Jobs]
+      summary: Update an open job
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/JobInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /jobs/{jobId}/cancel:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    post:
+      tags: [Jobs]
+      summary: Cancel a job
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties: { reason: { type: string } }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /jobs/{jobId}/complete:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    post:
+      tags: [Jobs]
+      summary: Mark or confirm a job as completed
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /jobs/{jobId}/candidates:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    get:
+      tags: [Jobs]
+      summary: List workers contacted for a job and their response
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /jobs/{jobId}/assign:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    post:
+      tags: [Jobs]
+      summary: Assign accepted workers to a job
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workerIds]
+              properties:
+                workerIds:
+                  type: array
+                  minItems: 1
+                  items: { type: string, format: uuid }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /jobs/{jobId}/start:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    post:
+      tags: [Jobs]
+      summary: Start an assigned job
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /worker-jobs/requests:
+    get:
+      tags: [Jobs]
+      summary: List job requests sent to the current worker
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/PaginatedSuccess' }
+  /jobs/{jobId}/workers/{workerId}/respond:
+    parameters:
+      - $ref: '#/components/parameters/JobId'
+      - $ref: '#/components/parameters/WorkerId'
+    post:
+      tags: [Jobs]
+      summary: Accept or reject a job request
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [response]
+              properties:
+                response: { type: string, enum: [accepted, rejected] }
+                payHourly: { type: number, format: float, minimum: 0 }
+                payDaily: { type: number, format: float, minimum: 0, nullable: true }
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /favourites:
+    get:
+      tags: [Favourites]
+      summary: List current customer's favourite workers
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+    post:
+      tags: [Favourites]
+      summary: Save a worker as favourite
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [workerId]
+              properties: { workerId: { type: string, format: uuid } }
+      responses:
+        '201': { $ref: '#/components/responses/Success' }
+  /favourites/{workerId}:
+    parameters: [{ $ref: '#/components/parameters/WorkerId' }]
+    delete:
+      tags: [Favourites]
+      summary: Remove favourite worker
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /jobs/{jobId}/ratings:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    post:
+      tags: [Ratings]
+      summary: Rate a completed job once
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rating]
+              properties:
+                rating: { type: number, format: float, minimum: 1, maximum: 5, example: 4.5 }
+                description: { type: string, example: Arrived on time and fixed the problem quickly. }
+      responses:
+        '201': { $ref: '#/components/responses/Success' }
+  /workers/{workerId}/ratings:
+    parameters: [{ $ref: '#/components/parameters/WorkerId' }]
+    get:
+      tags: [Ratings]
+      summary: List a worker's ratings
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200': { $ref: '#/components/responses/PaginatedSuccess' }
+  /workers/{workerId}/rating-summary:
+    parameters: [{ $ref: '#/components/parameters/WorkerId' }]
+    get:
+      tags: [Ratings]
+      summary: Get a worker's rating average and count
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: List notifications for the current user
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: unreadOnly
+          in: query
+          schema: { type: boolean }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200': { $ref: '#/components/responses/PaginatedSuccess' }
+  /notifications/{notificationId}/read:
+    parameters: [{ $ref: '#/components/parameters/NotificationId' }]
+    patch:
+      tags: [Notifications]
+      summary: Mark one notification as read
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+  /notifications/read-all:
+    patch:
+      tags: [Notifications]
+      summary: Mark all notifications as read
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { $ref: '#/components/responses/Success' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    AddressId: { name: addressId, in: path, required: true, schema: { type: string, format: uuid } }
+    CategoryId: { name: categoryId, in: path, required: true, schema: { type: string, format: uuid } }
+    WorkerId: { name: workerId, in: path, required: true, schema: { type: string, format: uuid } }
+    JobId: { name: jobId, in: path, required: true, schema: { type: string, format: uuid } }
+    LeaveId: { name: leaveId, in: path, required: true, schema: { type: string, format: uuid } }
+    NotificationId: { name: notificationId, in: path, required: true, schema: { type: string, format: uuid } }
+    CategoryQuery: { name: categoryId, in: query, schema: { type: string, format: uuid } }
+    GeographyQuery: { name: geography, in: query, schema: { type: string, example: Palakkad } }
+    Page: { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+    Limit: { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+  responses:
+    Success:
+      description: Request successful
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SuccessResponse' }
+    PaginatedSuccess:
+      description: Paginated request successful
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/PaginatedResponse' }
+    BadRequest:
+      description: Invalid request data
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Unauthorized:
+      description: Authentication is required or token is invalid
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+  schemas:
+    SuccessResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: { type: boolean, example: true }
+        data: { type: object, additionalProperties: true }
+    PaginatedResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            meta:
+              type: object
+              properties:
+                page: { type: integer, example: 1 }
+                limit: { type: integer, example: 20 }
+                total: { type: integer, example: 45 }
+    ErrorResponse:
+      type: object
+      required: [success, message]
+      properties:
+        success: { type: boolean, example: false }
+        message: { type: string, example: Phone number is required }
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
+    User:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        phone: { type: string, example: '+919876543210' }
+        name: { type: string, example: Anjali Menon }
+        language: { type: string, example: ml }
+        geography: { type: string, example: Palakkad }
+        profilePic: { type: string, format: uri, nullable: true }
+        roles:
+          type: array
+          items: { type: string, enum: [customer, worker, admin] }
+    UserResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/User' }
+    AddressInput:
+      type: object
+      required: [title, address, geography]
+      properties:
+        title: { type: string, example: Home }
+        address: { type: string, example: Kalpathy, Palakkad, Kerala }
+        geography: { type: string, example: Palakkad }
+    WorkerProfileInput:
+      type: object
+      properties:
+        about: { type: string, example: Experienced electrician for home repairs. }
+        availability: { type: boolean, example: true }
+        geography: { type: string, example: Palakkad }
+    WorkerCategoryInput:
+      type: object
+      required: [categoryId]
+      properties:
+        categoryId: { type: string, format: uuid }
+        payHourly: { type: number, format: float, minimum: 0, example: 250 }
+        payDaily: { type: number, format: float, minimum: 0, example: 1500 }
+        startTime: { type: string, example: '09:00' }
+        endTime: { type: string, example: '18:00' }
+    LeaveInput:
+      type: object
+      required: [date, fullDay]
+      properties:
+        date: { type: string, format: date, example: '2026-10-25' }
+        fullDay: { type: boolean, example: true }
+        startTime: { type: string, nullable: true, example: '09:00' }
+        endTime: { type: string, nullable: true, example: '13:00' }
+        reason: { type: string, example: Family function }
+    JobInput:
+      type: object
+      required: [categoryId, addressId, description, date, startTime, fullDay]
+      properties:
+        categoryId: { type: string, format: uuid }
+        addressId: { type: string, format: uuid }
+        description: { type: string, example: Kitchen tap is leaking. }
+        voice: { type: string, format: uri, nullable: true }
+        date: { type: string, format: date, example: '2026-10-20' }
+        startTime: { type: string, example: '10:00' }
+        endTime: { type: string, nullable: true, example: '12:00' }
+        fullDay: { type: boolean, example: false }
+    JobStatus:
+      type: string
+      enum: [open, matched, assigned, in_progress, completed, cancelled, unfilled]
